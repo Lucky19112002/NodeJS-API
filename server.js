@@ -6,6 +6,7 @@ const app = express();
 //middleware
 
 app.use(express.json()); //parse the incoming requests with json
+app.use(express.urlencoded({ extended: false})); //parse the incoming requests with form data
 
 //routes
 
@@ -23,7 +24,7 @@ app.get("/products", async (req, res) => {
     const products = await Products.find({});
     res.status(200).json(products);
   } catch (error) {
-    res.status.send({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
@@ -33,6 +34,26 @@ app.get("/products/:id", async (req, res) => {
     const { id } = req.params;
     const product = await Product.findById(id);
     res.status(200).json(product);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+//Update the data in database
+//when we want to update anting we use put operation.
+app.put("/products/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findByIdAndUpdate(id, req.body);
+    //cannot find the product we search for
+    if (!product) {
+      res
+        .status(404)
+        .json({ message: `cannot find the product with ID ${id}.` });
+    }
+    //if sucessfully updated
+    const updatedProduct = await Product.findById(id);
+    res.status(200).json(updatedProduct);
   } catch (error) {
     res.status.send({ message: error.message });
   }
