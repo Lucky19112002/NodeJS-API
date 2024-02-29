@@ -6,7 +6,7 @@ const app = express();
 //middleware
 
 app.use(express.json()); //parse the incoming requests with json
-app.use(express.urlencoded({ extended: false})); //parse the incoming requests with form data
+app.use(express.urlencoded({ extended: false })); //parse the incoming requests with form data url
 
 //routes
 
@@ -54,6 +54,23 @@ app.put("/products/:id", async (req, res) => {
     //if sucessfully updated
     const updatedProduct = await Product.findById(id);
     res.status(200).json(updatedProduct);
+  } catch (error) {
+    res.status.send({ message: error.message });
+  }
+});
+
+//delete a product
+app.delete("/products/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findByIdAndDelete(id);
+    if (!product) {
+      res
+        .status(404)
+        .json({ message: `cannot find the product with ID ${id}.` });
+    }
+    //if sucessfully updated
+    res.status(200).json(product);
   } catch (error) {
     res.status.send({ message: error.message });
   }
